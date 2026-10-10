@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import {
   ArrowUpRight,
   BookOpen,
@@ -85,27 +86,64 @@ function PageNav({ doc }: { doc: Doc }): ReactNode {
 }
 
 function Menu(props: { label: ReactNode; title: string; children: (close: () => void) => ReactNode; className?: string }): ReactNode {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const open = pos !== null
+  const close = (): void => setPos(null)
+
+  // The menu lives in a layer on top of the window (not inside the toolbar),
+  // so scrolling or clipped toolbars can never hide it.
+  const toggle = (): void => {
+    if (open) return close()
+    const r = btnRef.current!.getBoundingClientRect()
+    setPos({ top: r.bottom + 6, left: r.left + r.width / 2 })
+  }
+
+  // Keep the menu fully on screen once its size is known.
+  useLayoutEffect(() => {
+    const el = menuRef.current
+    if (!el || !pos) return
+    const w = el.offsetWidth
+    const left = Math.min(Math.max(8, pos.left - w / 2), window.innerWidth - w - 8)
+    el.style.left = `${left}px`
+    el.style.maxHeight = `${window.innerHeight - pos.top - 12}px`
+  }, [pos])
+
   useEffect(() => {
     if (!open) return
     const onDown = (e: PointerEvent): void => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false)
+      const t = e.target as Node
+      if (!menuRef.current?.contains(t) && !btnRef.current?.contains(t)) close()
+    }
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') close()
     }
     window.addEventListener('pointerdown', onDown)
-    return () => window.removeEventListener('pointerdown', onDown)
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('resize', close)
+    window.addEventListener('blur', close)
+    return () => {
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('resize', close)
+      window.removeEventListener('blur', close)
+    }
   }, [open])
+
   return (
-    <div className="menu-wrap" ref={ref}>
-      <button className={props.className ?? 'btn ghost sm'} aria-haspopup="menu" aria-expanded={open} title={props.title} onClick={() => setOpen(!open)}>
+    <>
+      <button ref={btnRef} className={props.className ?? 'btn ghost sm'} aria-haspopup="menu" aria-expanded={open} title={props.title} onClick={toggle}>
         {props.label}
       </button>
-      {open && (
-        <div className="menu" role="menu" onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}>
-          {props.children(() => setOpen(false))}
-        </div>
-      )}
-    </div>
+      {pos &&
+        createPortal(
+          <div ref={menuRef} className="menu" role="menu" style={{ top: pos.top, left: pos.left }}>
+            {props.children(close)}
+          </div>,
+          document.body
+        )}
+    </>
   )
 }
 

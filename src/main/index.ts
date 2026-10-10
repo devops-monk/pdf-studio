@@ -131,6 +131,10 @@ function driveForTesting(scriptPath: string): void {
   })
 }
 
+// Runs from source keep their own settings and single-instance lock, so they
+// never clash with an installed copy of the app.
+if (!app.isPackaged) app.setPath('userData', join(app.getPath('appData'), 'PDF Studio Dev'))
+
 // One window, one process: a second launch hands its files to the first.
 if (!app.requestSingleInstanceLock()) {
   app.quit()
