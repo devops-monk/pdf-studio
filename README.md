@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://pdf-studio.devops-monk.com"><b>pdf-studio.devops-monk.com</b></a> ·
   <a href="https://github.com/devops-monk/pdf-studio/releases/latest"><b>Download the latest release</b></a>
 </p>
 
@@ -134,6 +135,7 @@ npm run dist:mac     # or dist:win / dist:linux
 | `src/renderer/src/store` | Open documents, undo history and interface state |
 | `src/renderer/src/components` | The interface |
 | `cli` | The command-line tool |
+| `website` | The product website (static HTML/CSS/JS); `website/deploy.sh` publishes it |
 | `build` | App icons for every platform (`npm run icons` regenerates them from `build/icon.svg`) |
 
 ## Releases

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
 import { join } from 'node:path'
 import { buildMenu } from './menu'
 import { registerFileIpc } from './files'
@@ -6,6 +6,7 @@ import { registerOcrIpc, shutdownOcr } from './ocr'
 import { readSettings, writeSettings } from './settings'
 
 const isMac = process.platform === 'darwin'
+const appIcon = join(__dirname, '../../resources/icon.png')
 let mainWindow: BrowserWindow | null = null
 let rendererReady = false
 let pendingPaths: string[] = []
@@ -43,7 +44,7 @@ function createWindow(): void {
     ...(isMac
       ? { trafficLightPosition: { x: 14, y: 14 } }
       : { titleBarOverlay: { color: '#00000000', symbolColor: '#8a939c', height: 44 } }),
-    icon: join(__dirname, '../../resources/icon.png'),
+    icon: appIcon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -142,8 +143,22 @@ if (!app.requestSingleInstanceLock()) {
     deliverPaths([path])
   })
 
+  // Windows groups taskbar buttons and notifications by this id; it must match
+  // the installer's appId so the app shows its own name and icon, not Electron's.
+  if (process.platform === 'win32') app.setAppUserModelId('com.devopsmonk.pdfstudio')
+
   app.whenReady().then(() => {
     app.setName('PDF Studio')
+    // Packaged builds take the icon from the app bundle; when running from
+    // source, macOS would otherwise show Electron's icon in the Dock.
+    if (isMac && !app.isPackaged) app.dock?.setIcon(nativeImage.createFromPath(appIcon))
+    app.setAboutPanelOptions({
+      applicationName: 'PDF Studio',
+      applicationVersion: app.getVersion(),
+      copyright: 'Copyright © 2026 Abhay Pratap Singh',
+      website: 'https://pdf-studio.devops-monk.com',
+      iconPath: appIcon
+    })
     registerFileIpc()
     registerOcrIpc()
 

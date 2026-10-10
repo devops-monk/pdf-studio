@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b323a"/>
+      <stop offset="1" stop-color="#171b20"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eef0f2"/>
+    </linearGradient>
+    <linearGradient id="fold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d4d9de"/>
+      <stop offset="1" stop-color="#b8bfc6"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <!-- Base tile (macOS-style rounded square with standard 100px safe margin) -->
+  <rect x="100" y="100" width="824" height="824" rx="184" fill="url(#bg)"/>
+  <rect x="100.5" y="100.5" width="823" height="823" rx="183.5" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="3"/>
+  <!-- Page -->
+  <g filter="url(#shadow)">
+    <path d="M300 220 H596 L724 348 V780 a24 24 0 0 1 -24 24 H300 a24 24 0 0 1 -24 -24 V244 a24 24 0 0 1 24 -24 Z" fill="url(#paper)"/>
+    <path d="M596 220 V324 a24 24 0 0 0 24 24 H724 Z" fill="url(#fold)"/>
+  </g>
+  <!-- Text lines -->
+  <g fill="#c3c9cf">
+    <rect x="336" y="300" width="200" height="22" rx="11"/>
+    <rect x="336" y="372" width="330" height="22" rx="11"/>
+    <rect x="336" y="584" width="330" height="22" rx="11"/>
+    <rect x="336" y="656" width="250" height="22" rx="11"/>
+    <rect x="336" y="728" width="180" height="22" rx="11"/>
+  </g>
+  <!-- Highlighted line: the app's signature mark, with marker-rough ends -->
+  <path d="M322 458 C420 450 560 446 676 442 L684 452 L680 470 L688 488 L682 506 L690 522 C570 528 440 534 326 540 L318 524 L326 506 L316 490 L324 472 Z" fill="#f5c518"/>
+  <rect x="340" y="480" width="290" height="22" rx="11" fill="#2b323a"/>
+  <!-- Highlighter, nib resting at the end of the stroke -->
+  <g transform="translate(700 492) rotate(36)" filter="url(#shadow)">
+    <path d="M-24 -52 L24 -52 L12 -4 L-8 0 Z" fill="#c99a00"/>
+    <rect x="-34" y="-296" width="68" height="250" rx="16" fill="#f5c518"/>
+    <rect x="-34" y="-112" width="68" height="40" fill="#1d2228" opacity="0.9"/>
+    <rect x="-34" y="-296" width="68" height="64" rx="16" fill="#e3b200"/>
+    <rect x="-22" y="-268" width="10" height="140" rx="5" fill="#fff" opacity="0.35"/>
+  </g>
+</svg>

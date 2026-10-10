@@ -1,0 +1,29 @@
+# pdf-studio.devops-monk.com → the PDF Studio website (static files).
+# certbot --nginx adds the 443 block and redirect to this file only.
+server {
+    listen 80;
+    listen [::]:80;
+    server_name pdf-studio.devops-monk.com;
+
+    root /var/www/pdf-studio;
+    index index.html;
+
+    limit_conn perip 20;
+    limit_req zone=general burst=60 nodelay;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header X-Frame-Options SAMEORIGIN always;
+
+    gzip on;
+    gzip_types text/css application/javascript image/svg+xml application/xml text/plain;
+
+    location /assets/ {
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

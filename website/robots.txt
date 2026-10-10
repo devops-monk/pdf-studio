@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://pdf-studio.devops-monk.com/sitemap.xml
