@@ -5,3 +5,4 @@ release/
 src/renderer/public/pdfjs/
 *.log
 .DS_Store
+PLAN.md
