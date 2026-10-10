@@ -27,10 +27,10 @@ jobs:
         include:
           - name: macOS
             os: macos-latest
-            args: --mac --x64 --arm64
+            args: --mac
           - name: Windows
             os: windows-latest
-            args: --win --x64 --arm64
+            args: --win
           - name: Linux
             os: ubuntu-latest
             args: --linux
@@ -68,6 +68,8 @@ jobs:
         run: |
           mkdir -p dist-upload
           find release -maxdepth 1 -type f \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' \) -exec cp {} dist-upload/ \;
+          # Skip the combined all-architecture Windows installer; per-architecture ones are smaller.
+          rm -f dist-upload/*-win.exe
           ls -la dist-upload
 
       - uses: actions/upload-artifact@v7
