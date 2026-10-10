@@ -1,0 +1,90 @@
+/*
+ * PDF Studio design tokens.
+ * Graphite workspace, paper-white pages, and one accent: highlighter yellow,
+ * used only for "this is selected / active / marked". Destructive actions use
+ * proof-mark red. Everything else stays quiet so the document is the loudest
+ * thing on screen.
+ */
+:root {
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Ubuntu, sans-serif;
+  --font-display: 'IBM Plex Serif', Georgia, serif;
+
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-lg: 15px;
+  --text-xl: 20px;
+  --text-display: 44px;
+
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
+
+  --titlebar-h: 44px;
+  --toolbar-h: 44px;
+  --rail-w: 48px;
+  --panel-w: 264px;
+  --statusbar-h: 28px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  color-scheme: light;
+  --chrome: #e4e7eb;
+  --chrome-2: #d9dde2;
+  --panel: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #f7f8f9;
+  --canvas: #c9ced4;
+  --ink: #1d2228;
+  --ink-2: #545d67;
+  --ink-3: #848d97;
+  --line: #d0d5db;
+  --line-strong: #b7bec6;
+  --hover: rgba(29, 34, 40, 0.06);
+  --press: rgba(29, 34, 40, 0.11);
+
+  --mark: #f5c518;
+  --mark-ink: #1d2228;
+  --mark-soft: rgba(245, 197, 24, 0.24);
+  --mark-line: #c99a00;
+  --focus: #1d2228;
+
+  --danger: #c63b2f;
+  --danger-soft: rgba(198, 59, 47, 0.12);
+  --ok: #2f7d4f;
+
+  --page-shadow: 0 1px 2px rgba(20, 24, 28, 0.18), 0 6px 18px rgba(20, 24, 28, 0.12);
+  --pop-shadow: 0 2px 6px rgba(20, 24, 28, 0.12), 0 18px 48px rgba(20, 24, 28, 0.22);
+  --scrim: rgba(29, 34, 40, 0.38);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --chrome: #1a1e23;
+  --chrome-2: #22272d;
+  --panel: #20252b;
+  --surface: #2a3038;
+  --surface-2: #252a31;
+  --canvas: #111418;
+  --ink: #e7eaed;
+  --ink-2: #a9b2bb;
+  --ink-3: #75808a;
+  --line: #333a42;
+  --line-strong: #46505a;
+  --hover: rgba(231, 234, 237, 0.07);
+  --press: rgba(231, 234, 237, 0.12);
+
+  --mark: #f5c518;
+  --mark-ink: #16191d;
+  --mark-soft: rgba(245, 197, 24, 0.2);
+  --mark-line: #f5c518;
+  --focus: #f5c518;
+
+  --danger: #ec6b5e;
+  --danger-soft: rgba(236, 107, 94, 0.16);
+  --ok: #5cbf86;
+
+  --page-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+  --pop-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 22px 56px rgba(0, 0, 0, 0.55);
+  --scrim: rgba(0, 0, 0, 0.55);
+}
