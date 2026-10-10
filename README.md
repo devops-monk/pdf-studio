@@ -87,7 +87,8 @@ sudo dnf install ./PDF-Studio-*-linux-x86_64.rpm
 chmod +x PDF-Studio-*.AppImage && ./PDF-Studio-*.AppImage
 ```
 
-**macOS:** the builds are not notarized yet. If macOS says the app is damaged or can't be opened, run this once:
+**macOS:** the builds are not notarized by Apple yet, so the first launch is blocked. Open the app once, then go to
+**System Settings → Privacy & Security** and click **Open Anyway**. Or run this once in Terminal:
 
 ```sh
 xattr -dr com.apple.quarantine "/Applications/PDF Studio.app"

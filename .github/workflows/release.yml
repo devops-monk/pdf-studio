@@ -117,5 +117,6 @@ jobs:
 
             Verify downloads with `SHA256SUMS.txt`.
 
-            **macOS:** builds are not notarized yet. If macOS says the app is damaged or can't be opened, run
+            **macOS:** builds are not notarized by Apple yet. After the first launch is blocked, open
+            System Settings → Privacy & Security and click **Open Anyway**, or run
             `xattr -dr com.apple.quarantine "/Applications/PDF Studio.app"` once.
