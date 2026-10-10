@@ -101,6 +101,35 @@ function createWindow(): void {
   }
 }
 
+/**
+ * Development-only test driver: runs a JSON script of renderer snippets and
+ * window captures, then quits. Never active in packaged builds.
+ */
+function driveForTesting(scriptPath: string): void {
+  const steps: ({ js: string } | { wait: number } | { shot: string } | { size: [number, number] })[] = JSON.parse(
+    require('node:fs').readFileSync(scriptPath, 'utf8')
+  )
+  ipcMain.once('app:ready', async () => {
+    const fs = require('node:fs') as typeof import('node:fs')
+    for (const step of steps) {
+      if (!mainWindow) break
+      try {
+        if ('wait' in step) await new Promise((r) => setTimeout(r, step.wait))
+        if ('size' in step) mainWindow.setContentSize(step.size[0], step.size[1])
+        if ('js' in step) {
+          const out = await mainWindow.webContents.executeJavaScript(step.js, true)
+          if (out !== undefined) console.log('[drive]', JSON.stringify(out))
+        }
+        if ('shot' in step) fs.writeFileSync(step.shot, (await mainWindow.webContents.capturePage()).toPNG())
+      } catch (err) {
+        console.log('[drive] error', String(err))
+      }
+    }
+    hasUnsavedChanges = false
+    app.exit(0)
+  })
+}
+
 // One window, one process: a second launch hands its files to the first.
 if (!app.requestSingleInstanceLock()) {
   app.quit()
@@ -147,6 +176,7 @@ if (!app.requestSingleInstanceLock()) {
 
     createWindow()
     buildMenu(() => mainWindow)
+    if (!app.isPackaged && process.env.PDFSTUDIO_DRIVE) driveForTesting(process.env.PDFSTUDIO_DRIVE)
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()

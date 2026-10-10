@@ -28,8 +28,7 @@ export async function loadPdf(bytes: Uint8Array, password?: string): Promise<PDF
     standardFontDataUrl: assetBase + 'standard_fonts/',
     wasmUrl: assetBase + 'wasm/',
     iccUrl: assetBase + 'iccs/',
-    enableXfa: false,
-    isEvalSupported: false
+    enableXfa: false
   })
   try {
     return await task.promise
@@ -40,6 +39,11 @@ export async function loadPdf(bytes: Uint8Array, password?: string): Promise<PDF
     }
     throw err
   }
+}
+
+/** Releases a document and its worker resources. */
+export function closePdf(pdf: PDFDocumentProxy): Promise<void> {
+  return pdf.loadingTask.destroy().catch(() => undefined)
 }
 
 /** Largest canvas we allow, in pixels. Beyond this pages render at reduced density. */
