@@ -8,29 +8,22 @@
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
-    "build": "electron-vite build",
+    "build": "electron-vite build && npm run build:cli",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "start": "electron-vite preview",
-    "dist": "electron-vite build && electron-builder",
-    "dist:mac": "electron-vite build && electron-builder --mac",
-    "dist:win": "electron-vite build && electron-builder --win",
-    "dist:linux": "electron-vite build && electron-builder --linux",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:linux": "npm run build && electron-builder --linux",
     "postinstall": "node scripts/copy-pdfjs-assets.mjs",
     "predev": "node scripts/copy-pdfjs-assets.mjs",
     "prebuild": "node scripts/copy-pdfjs-assets.mjs",
-    "icons": "electron scripts/make-icons.cjs"
+    "icons": "electron scripts/make-icons.cjs",
+    "build:cli": "esbuild cli/index.ts --bundle --platform=node --target=node18 --format=cjs --banner:js=\"#!/usr/bin/env node\" --outfile=out/cli/pdf-studio-cli.cjs"
   },
   "dependencies": {
-    "@cantoo/pdf-lib": "^2.11.1",
-    "@fontsource/ibm-plex-sans": "^5.3.0",
-    "@fontsource/ibm-plex-serif": "^5.3.0",
     "@tesseract.js-data/eng": "^1.0.0",
-    "lucide-react": "^1.55.0",
-    "pdfjs-dist": "^6.4.299",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "tesseract.js": "^7.0.0",
-    "zustand": "^5.0.15"
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
@@ -41,6 +34,150 @@
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "typescript": "^7.0.2",
-    "vite": "^7.3.7"
+    "vite": "^7.3.7",
+    "@cantoo/pdf-lib": "^2.11.1",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/ibm-plex-serif": "^5.3.0",
+    "lucide-react": "^1.55.0",
+    "pdfjs-dist": "^6.4.299",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^5.0.15"
+  },
+  "bin": {
+    "pdf-studio-cli": "out/cli/pdf-studio-cli.cjs"
+  },
+  "homepage": "https://github.com/devops-monk/pdf-studio",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devops-monk/pdf-studio.git"
+  },
+  "build": {
+    "appId": "com.devopsmonk.pdfstudio",
+    "productName": "PDF Studio",
+    "copyright": "Copyright © 2026 Abhay Pratap Singh",
+    "artifactName": "PDF-Studio-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "out/**/*",
+      "!out/cli/**",
+      "resources/**/*",
+      "package.json",
+      "!node_modules/tesseract.js-core/*.wasm.js",
+      "!node_modules/tesseract.js-core/tesseract-core.{js,wasm}",
+      "!node_modules/tesseract.js-core/tesseract-core-simd.{js,wasm}",
+      "!node_modules/tesseract.js-core/tesseract-core-relaxedsimd.{js,wasm}",
+      "!node_modules/tesseract.js-core/tesseract-core.asm.js",
+      "!node_modules/@tesseract.js-data/eng/4.0.0/**"
+    ],
+    "asarUnpack": [
+      "node_modules/tesseract.js/**",
+      "node_modules/tesseract.js-core/**",
+      "node_modules/@tesseract.js-data/**"
+    ],
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "PDF Document",
+        "description": "PDF document",
+        "mimeType": "application/pdf",
+        "role": "Editor",
+        "rank": "Alternate"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "darkModeSupport": true
+    },
+    "dmg": {
+      "title": "PDF Studio ${version}"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PDF Studio"
+    },
+    "portable": {
+      "artifactName": "PDF-Studio-${version}-portable.${ext}"
+    },
+    "linux": {
+      "icon": "build/icons",
+      "category": "Office",
+      "synopsis": "Private, offline PDF workbench",
+      "description": "Read, annotate, organize, sign, redact and protect PDF files.",
+      "maintainer": "Abhay Pratap Singh <abhaypratap3537@gmail.com>",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "rpm",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "mimeTypes": [
+        "application/pdf"
+      ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "devops-monk",
+      "repo": "pdf-studio",
+      "releaseType": "release"
+    }
   }
 }

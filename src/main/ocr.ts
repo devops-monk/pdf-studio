@@ -23,7 +23,7 @@ function unpacked(path: string): string {
 
 function getWorker(): Promise<Worker> {
   if (!worker) {
-    const langPath = unpacked(join(dirname(require_.resolve('@tesseract.js-data/eng/package.json')), '4.0.0'))
+    const langPath = unpacked(join(dirname(require_.resolve('@tesseract.js-data/eng/package.json')), '4.0.0_best_int'))
     worker = createWorker('eng', 1, {
       langPath,
       gzip: true,

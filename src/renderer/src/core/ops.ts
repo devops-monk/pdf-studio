@@ -52,7 +52,15 @@ export async function isEncrypted(bytes: Uint8Array): Promise<boolean> {
 
 /** Returns an unencrypted copy. The empty password works for restriction-only files. */
 export async function decrypt(bytes: Uint8Array, password: string): Promise<Uint8Array> {
-  return saveLib(await openLib(bytes, password))
+  const doc = await openLib(bytes, password)
+  // Loading decrypts the objects but leaves the security handler's dictionary
+  // behind; drop it so the saved copy is a plain, unencrypted PDF.
+  for (const [ref, obj] of doc.context.enumerateIndirectObjects()) {
+    if (obj instanceof PDFDict && obj.get(PDFName.of('Filter')) === PDFName.of('Standard') && obj.has(PDFName.of('O')) && obj.has(PDFName.of('U'))) {
+      doc.context.delete(ref)
+    }
+  }
+  return saveLib(doc)
 }
 
 export interface Permissions {

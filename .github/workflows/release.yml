@@ -1,0 +1,119 @@
+name: Release
+
+# Push a tag like v1.2.0 to build installers for every platform and publish
+# them as a GitHub Release. Can also be started by hand from the Actions tab.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v1.0.0). It must already exist.'
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-latest
+            args: --mac --x64 --arm64
+          - name: Windows
+            os: windows-latest
+            args: --win --x64 --arm64
+          - name: Linux
+            os: ubuntu-latest
+            args: --linux
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install rpm tooling
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - run: npm ci
+
+      - name: Set version from tag
+        shell: bash
+        run: npm version "${TAG#v}" --no-git-tag-version --allow-same-version
+
+      - run: npm run typecheck
+      - run: npm run build
+
+      - name: Package
+        shell: bash
+        env:
+          # Unsigned builds. Add signing certificates here when available.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder ${{ matrix.args }} --publish never
+
+      - name: Collect installers
+        shell: bash
+        run: |
+          mkdir -p dist-upload
+          find release -maxdepth 1 -type f \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' \) -exec cp {} dist-upload/ \;
+          ls -la dist-upload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.name }}
+          path: dist-upload/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: installers-*
+          merge-multiple: true
+
+      - name: Checksums
+        run: |
+          cd artifacts
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: PDF Studio ${{ env.TAG }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: artifacts/*
+          body: |
+            ## Downloads
+
+            | System | File |
+            |---|---|
+            | macOS (Apple silicon) | `PDF-Studio-*-mac-arm64.dmg` |
+            | macOS (Intel) | `PDF-Studio-*-mac-x64.dmg` |
+            | Windows (installer) | `PDF-Studio-*-win-x64.exe` · ARM: `*-win-arm64.exe` |
+            | Windows (no install) | `PDF-Studio-*-portable.exe` |
+            | Linux (any distro) | `PDF-Studio-*-linux-x86_64.AppImage` · ARM: `*-arm64.AppImage` |
+            | Ubuntu / Debian | `PDF-Studio-*-linux-amd64.deb` · ARM: `*-arm64.deb` |
+            | Fedora / RHEL / openSUSE | `PDF-Studio-*-linux-x86_64.rpm` |
+
+            Verify downloads with `SHA256SUMS.txt`.
+
+            **macOS:** builds are not notarized yet. If macOS says the app is damaged or can't be opened, run
+            `xattr -dr com.apple.quarantine "/Applications/PDF Studio.app"` once.
